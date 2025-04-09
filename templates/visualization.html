@@ -1,0 +1,191 @@
+{% extends 'layout.html' %}
+
+{% block title %}Visualization - Remote Sensing for Mineral Exploration{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Data Visualization</h1>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-chart-bar"></i> Hyperspectral Data Visualization</h2>
+    <div class="card-content">
+        <p>Visualizing hyperspectral data is crucial for mineral exploration as it helps geologists interpret complex spectral information and identify mineral distributions.</p>
+        
+        <h3 class="sub-title">True Color Composite</h3>
+        <p>A true color composite uses visible wavelength bands to create an RGB image that approximates what the human eye would see.</p>
+        
+        <div class="code-box">
+<pre>
+# Create true color composite from hyperspectral data
+red_band = raster.get_band_by_wavelength(650)    # Red (~650 nm)
+green_band = raster.get_band_by_wavelength(550)  # Green (~550 nm)
+blue_band = raster.get_band_by_wavelength(450)   # Blue (~450 nm)
+
+# Stack the RGB bands
+true_color = np.stack([red_band, green_band, blue_band], axis=-1)
+
+# Apply contrast stretching for better visualization
+true_color_stretched = exposure.rescale_intensity(true_color)
+
+# Display the true color image
+plt.figure(figsize=(10, 8))
+plt.imshow(true_color_stretched)
+plt.title('True Color Composite')
+plt.axis('off')
+</pre>
+        </div>
+        
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/true_color.png') }}" alt="True Color Composite" class="responsive-image">
+            <p class="image-caption">True color composite of the study area showing natural colors as they would appear to the human eye.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-map-marked-alt"></i> Mineral Maps</h2>
+    <div class="card-content">
+        <p>Mineral maps display the spatial distribution of detected minerals, highlighting areas of interest for exploration.</p>
+        
+        <h3 class="sub-title">Kaolinite Probability Map</h3>
+        <p>This map shows the probability of kaolinite presence across the study area, with warmer colors indicating higher probability.</p>
+        
+        <div class="code-box">
+<pre>
+# Plot the kaolinite probability map
+plt.figure(figsize=(10, 8))
+plt.imshow(kaolinite_probability, cmap='hot', vmin=0, vmax=100)
+plt.colorbar(label='Probability (%)')
+plt.title('Kaolinite Probability Map')
+plt.axis('off')
+
+# Add contours for areas with high probability
+plt.contour(kaolinite_probability > 70, colors='cyan', linewidths=0.5)
+</pre>
+        </div>
+        
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/kaolinite_probability.png') }}" alt="Kaolinite Probability Map" class="responsive-image">
+            <p class="image-caption">Probability map showing likelihood of kaolinite presence, with cyan contours outlining high-probability regions.</p>
+        </div>
+        
+        <h3 class="sub-title">Multi-Mineral Classification Map</h3>
+        <p>This map shows the dominant mineral identified at each pixel after classification.</p>
+        
+        <div class="code-box">
+<pre>
+# Create a colormap for different minerals
+mineral_classes = ['Background', 'Kaolinite', 'Alunite', 'Muscovite', 'Pyrophyllite']
+cmap = plt.cm.get_cmap('viridis', len(mineral_classes))
+
+# Plot the classified mineral map
+plt.figure(figsize=(10, 8))
+im = plt.imshow(mineral_map, cmap=cmap, interpolation='none')
+plt.title('Mineral Classification Map')
+plt.axis('off')
+
+# Add a legend
+from matplotlib.patches import Patch
+legend_elements = [Patch(facecolor=cmap(i), label=mineral_classes[i]) 
+                  for i in range(len(mineral_classes))]
+plt.legend(handles=legend_elements, loc='lower right', fontsize='small')
+</pre>
+        </div>
+        
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/mineral_classification.png') }}" alt="Mineral Classification Map" class="responsive-image">
+            <p class="image-caption">Classification map showing the spatial distribution of different minerals across the study area.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-hand-pointer"></i> Interactive Visualization</h2>
+    <div class="card-content">
+        <p>Interactive visualizations allow users to explore the data in more detail, including examining spectral signatures at specific locations.</p>
+        
+        <h3 class="sub-title">Interactive Spectral Plots</h3>
+        <p>Click on any pixel in the image to display its spectral signature and compare it with known mineral spectra.</p>
+        
+        <div class="code-box">
+<pre>
+# Create interactive visualization with matplotlib widgets
+from matplotlib.widgets import Cursor
+
+fig, ax = plt.subplots(1, 2, figsize=(15, 6))
+ax[0].imshow(true_color_stretched)
+ax[0].set_title('Click on a pixel to view spectrum')
+ax[0].axis('off')
+
+line, = ax[1].plot(raster.wavelengths, np.zeros_like(raster.wavelengths))
+ax[1].set_title('Pixel Spectrum')
+ax[1].set_xlabel('Wavelength (nm)')
+ax[1].set_ylabel('Reflectance')
+
+# Add reference spectra
+ax[1].plot(raster.wavelengths, kaolinite.spectrum, 'r--', alpha=0.7, label='Kaolinite')
+ax[1].plot(raster.wavelengths, alunite.spectrum, 'g--', alpha=0.7, label='Alunite')
+ax[1].legend()
+
+def onclick(event):
+    if event.inaxes == ax[0]:
+        x, y = int(event.xdata), int(event.ydata)
+        spectrum = raster.values[y, x, :]
+        line.set_ydata(spectrum)
+        ax[1].set_ylim(0, max(spectrum) * 1.1)
+        fig.canvas.draw_idle()
+
+fig.canvas.mpl_connect('button_press_event', onclick)
+</pre>
+        </div>
+        
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/interactive_plot.png') }}" alt="Interactive Spectral Plot" class="responsive-image">
+            <p class="image-caption">Interactive spectral plot allowing users to click on any pixel and compare its spectrum with reference mineral spectra.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-cube"></i> 3D Visualization</h2>
+    <div class="card-content">
+        <p>3D visualizations help interpret the relationship between topography and mineral distributions.</p>
+        
+        <h3 class="sub-title">Draping Mineral Maps on DEMs</h3>
+        <p>Mineral classification results draped over a Digital Elevation Model (DEM) provide geological context.</p>
+        
+        <div class="code-box">
+<pre>
+# 3D visualization with mineral map draped over DEM
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+
+# Load DEM data
+dem = np.load('dem_data.npy')
+
+# Create 3D surface
+fig = plt.figure(figsize=(12, 10))
+ax = fig.add_subplot(111, projection='3d')
+
+# Create x and y coordinates
+x = np.arange(0, dem.shape[1], 1)
+y = np.arange(0, dem.shape[0], 1)
+x, y = np.meshgrid(x, y)
+
+# Plot surface with mineral map as color
+surf = ax.plot_surface(x, y, dem, facecolors=cm.viridis(mineral_map/np.max(mineral_map)),
+                      linewidth=0, antialiased=False)
+
+ax.set_title('Mineral Map Draped Over Topography')
+ax.set_xlabel('Easting')
+ax.set_ylabel('Northing')
+ax.set_zlabel('Elevation')
+</pre>
+        </div>
+        
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/3d_mineral_map.png') }}" alt="3D Mineral Map" class="responsive-image">
+            <p class="image-caption">3D visualization showing mineral classification results draped over topography to highlight geological relationships.</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

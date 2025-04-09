@@ -1,0 +1,89 @@
+{% extends 'layout.html' %}
+
+{% block title %}Preprocessing - Remote Sensing for Mineral Exploration{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Preprocessing</h1>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-tasks"></i> Hyperspectral Data Preprocessing</h2>
+    <div class="card-content">
+        <p>Proper preprocessing of hyperspectral data is essential for accurate mineral identification. For the EnMAP data used in this project, several preprocessing steps are applied to prepare the data for analysis:</p>
+        
+        <h3 class="sub-title">1. Bad Band Removal</h3>
+        <p>Hyperspectral data often contains noisy or unusable bands, particularly at the edges of the sensor's spectral range or in atmospheric absorption regions. These bands are identified and removed.</p>
+        <div class="code-box">
+<pre>
+# Remove bad bands with low signal-to-noise ratio
+bad_bands = [bands for bands in range(0, 10)] + [bands for bands in range(55, 65)] + [bands for bands in range(110, 120)]
+raster.remove_bands(bad_bands)
+</pre>
+        </div>
+        
+        <h3 class="sub-title">2. Spectral Subsetting</h3>
+        <p>Focus on specific wavelength ranges relevant to mineral identification, particularly in the short-wave infrared (SWIR) region where many clay minerals have diagnostic absorption features.</p>
+        <div class="code-box">
+<pre>
+# Extract the SWIR region (1000-2500 nm) for mineral identification
+swir_indices = [i for i, wl in enumerate(raster.wavelengths) if 1000 <= wl <= 2500]
+raster_swir = raster.select_bands(swir_indices)
+</pre>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-filter"></i> Noise Reduction</h2>
+    <div class="card-content">
+        <p>Hyperspectral data often contains noise that can affect the accuracy of mineral mapping. Several techniques are applied to reduce noise:</p>
+        
+        <h3 class="sub-title">Minimum Noise Fraction (MNF) Transform</h3>
+        <p>The MNF transform is a statistical technique that separates noise from signal by transforming the data into components ordered by their signal-to-noise ratio.</p>
+        <div class="code-box">
+<pre>
+# Apply MNF transform to reduce noise
+mnf_data, eigenvalues = mnf_transform(raster.values)
+
+# Determine the number of components to keep based on eigenvalues
+n_components = sum(1 for ev in eigenvalues if ev > 1.5)
+
+# Inverse transform using only the components with significant information
+mnf_inverse = inverse_mnf_transform(mnf_data[:, :, :n_components], eigenvalues[:n_components])
+</pre>
+        </div>
+        
+        <h3 class="sub-title">Spectral Smoothing</h3>
+        <p>Apply a Savitzky-Golay filter to smooth the spectral curves while preserving the shape of peaks and troughs.</p>
+        <div class="code-box">
+<pre>
+# Apply Savitzky-Golay filter for spectral smoothing
+smoothed_data = savgol_filter(raster.values, window_length=11, polyorder=3, axis=2)
+raster.values = smoothed_data
+</pre>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-mountain"></i> Continuum Removal</h2>
+    <div class="card-content">
+        <p>Continuum removal is a technique used to normalize reflectance spectra and emphasize absorption features that are diagnostic for mineral identification.</p>
+        
+        <p>The continuum is a convex hull fit over the top of a spectrum. By dividing the original spectrum by this continuum line, absorption features become more pronounced and comparable between different spectra.</p>
+        
+        <div class="code-box">
+<pre>
+# Apply continuum removal to normalize spectra
+continuum_removed = apply_continuum_removal(raster.values, raster.wavelengths)
+raster_cr = raster.copy()
+raster_cr.values = continuum_removed
+</pre>
+        </div>
+        
+        <div class="image-container">
+            <img src="https://www.harrisgeospatial.com/portals/0/images/envi_continuum_removal.png" alt="Continuum Removal Example" class="responsive-image">
+            <p class="image-caption">Example of continuum removal applied to a mineral spectrum. The original spectrum (top) and continuum-removed spectrum (bottom) show how absorption features become more prominent.</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

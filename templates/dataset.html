@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% block title %}Dataset - Remote Sensing for Mineral Exploration{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Dataset</h1>
+
+<div class="card">
+    <h2 class="card-title">EnMAP Hyperspectral Data</h2>
+    <div class="card-content">
+        <p>This project uses hyperspectral imagery from the EnMAP (Environmental Mapping and Analysis Program) satellite, which provides high-quality hyperspectral data with over 200 spectral bands in the visible to shortwave infrared range.</p>
+        
+        <h3 class="sub-title">Dataset Information</h3>
+        <ul>
+            <li><strong>Study Area:</strong> Cuprite, Nevada</li>
+            <li><strong>Data Source:</strong> EnMAP Satellite</li>
+            <li><strong>File Format:</strong> GeoTIFF</li>
+            <li><strong>Spectral Range:</strong> 400-2500 nm</li>
+            <li><strong>Number of Bands:</strong> 200+ spectral bands</li>
+            <li><strong>Spatial Resolution:</strong> 30 meters</li>
+        </ul>
+        
+        <h3 class="sub-title">Code Implementation</h3>
+        <div class="code-block">
+<pre>
+# Load the EnMAP data
+filename = "ENMAP01-____L2A-DT0000025905_20230707T192008Z_001_V010303_20230922T131734Z-SPECTRAL_IMAGE.TIF"
+raster_path = os.path.join(data_folder, cuprite_nevada_folder, filename)
+
+# Load raster using the custom Raster class
+raster = Raster(path=raster_path)
+
+# Load and apply Region of Interest (ROI) polygon
+polygon_path = os.path.join(data_folder, cuprite_nevada_folder, "ROI.geojson")
+polygon = gpd.read_file(polygon_path)
+</pre>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title">Why Cuprite, Nevada?</h2>
+    <div class="card-content">
+        <p>Cuprite, Nevada is a well-studied area in the field of hyperspectral remote sensing for several reasons:</p>
+        <ul>
+            <li>It contains a diverse range of alteration minerals, including kaolinite, alunite, buddingtonite, and hydrothermal silica</li>
+            <li>The arid environment minimizes vegetation cover, allowing for clear spectral signatures of surface minerals</li>
+            <li>It has been used as a calibration/validation site for numerous remote sensing instruments</li>
+            <li>Extensive field studies have documented the mineral composition, providing ground truth for remote sensing analyses</li>
+        </ul>
+        <div class="image-container">
+            <img src="https://www.usgs.gov/sites/default/files/styles/medium/public/2021-12/Cuprite%20Nevada%20mining%20district%20AVIRIS%20aerial%20view.jpg?itok=lPgMsDWt" alt="Cuprite Nevada Mining District" class="responsive-image">
+            <p class="image-caption">Aerial view of the Cuprite Mining District in Nevada</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title">Region of Interest (ROI)</h2>
+    <div class="card-content">
+        <p>For this demonstration, we focus on a specific region of interest where kaolinite is known to occur. The ROI is defined as a polygon in a GeoJSON file that is used to clip the original raster data.</p>
+        <div class="code-block">
+<pre>
+# Clip the raster to our region of interest
+raster = clip_raster(raster, polygon)
+</pre>
+        </div>
+        <p>Clipping the data to our ROI helps focus the analysis on the area of interest and reduces computational requirements.</p>
+    </div>
+</div>
+{% endblock %} 

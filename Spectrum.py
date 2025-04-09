@@ -37,7 +37,7 @@ class Spectrum:
 
         if self.mineral_name:
             if self.mineral_name == "kaolinite":  # TODO add more minerals
-                path = r"Spectral Library\Kaolinite.txt"
+                path = r"Spectral Library/Kaolinite.txt"
                 df = pd.read_csv(
                     path,
                     skiprows=2,

@@ -1,0 +1,141 @@
+{% extends 'layout.html' %}
+
+{% block title %}Classification - Remote Sensing for Mineral Exploration{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Mineral Classification</h1>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-layer-group"></i> Mineral Mapping</h2>
+    <div class="card-content">
+        <p>Classification of minerals from hyperspectral data involves using spectral analysis results to generate mineral distribution maps. This process identifies the presence and abundance of target minerals like kaolinite across the study area.</p>
+        
+        <h3 class="sub-title">Thresholding Spectral Metrics</h3>
+        <p>After calculating spectral similarity metrics (SAM, SFF), we apply thresholds to identify areas with high likelihood of containing the target mineral.</p>
+        
+        <div class="code-box">
+<pre>
+# Create binary classification map for kaolinite using SAM
+# Lower SAM angles indicate better matches
+sam_threshold = 0.15  # Threshold angle in radians
+kaolinite_binary_map = sam_scores < sam_threshold
+
+# Convert to probability map (0-100%)
+kaolinite_probability = 100 * (1 - (sam_scores / np.pi * 2))
+
+# Set probabilities below threshold to zero
+kaolinite_probability[sam_scores > sam_threshold] = 0
+</pre>
+        </div>
+        
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/kaolinite_map.png') }}" alt="Kaolinite Distribution Map" class="responsive-image">
+            <p class="image-caption">Kaolinite distribution map where brighter colors indicate higher probability of kaolinite presence.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-robot"></i> Machine Learning Approaches</h2>
+    <div class="card-content">
+        <p>Beyond traditional spectral matching, machine learning algorithms can improve mineral classification accuracy by learning from labeled training data.</p>
+        
+        <h3 class="sub-title">Random Forest Classification</h3>
+        <p>Random Forest classification uses ensemble learning to classify pixels based on their spectral signatures.</p>
+        
+        <div class="code-box">
+<pre>
+# Apply Random Forest classification
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+
+# Prepare training data
+X = raster_cr.values.reshape(-1, raster_cr.band_count)  # Features: spectral signatures
+y = training_labels  # Target: mineral labels
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Train Random Forest model
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Predict mineral classes
+mineral_predictions = rf_model.predict(X)
+mineral_probabilities = rf_model.predict_proba(X)
+
+# Reshape predictions to image dimensions
+mineral_map = mineral_predictions.reshape(raster_cr.height, raster_cr.width)
+</pre>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-percentage"></i> Mineral Abundance Estimation</h2>
+    <div class="card-content">
+        <p>For more detailed analysis, we can estimate the abundance (percentage) of minerals within each pixel using spectral unmixing techniques.</p>
+        
+        <h3 class="sub-title">Linear Spectral Unmixing</h3>
+        <p>Linear spectral unmixing treats each pixel's spectrum as a linear combination of pure endmember spectra (minerals), weighted by their fractional abundances.</p>
+        
+        <div class="code-box">
+<pre>
+# Perform linear spectral unmixing
+from geospatial_ai.utils import linear_spectral_unmixing
+
+# Define endmember spectra for common minerals
+endmembers = {
+    "Kaolinite": kaolinite.spectrum,
+    "Alunite": alunite.spectrum,
+    "Muscovite": muscovite.spectrum,
+    "Background": background_spectrum
+}
+
+# Apply linear unmixing
+abundance_maps = linear_spectral_unmixing(
+    raster_cr.values,
+    endmembers,
+    constrained=True  # Force abundances to sum to 1
+)
+
+# Access individual mineral abundance maps
+kaolinite_abundance = abundance_maps["Kaolinite"]
+alunite_abundance = abundance_maps["Alunite"]
+</pre>
+        </div>
+        
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/mineral_abundances.png') }}" alt="Mineral Abundance Maps" class="responsive-image">
+            <p class="image-caption">Abundance maps for different minerals, where color intensity represents percentage of the mineral within each pixel.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title"><i class="fas fa-clipboard-check"></i> Accuracy Assessment</h2>
+    <div class="card-content">
+        <p>Assessing the accuracy of mineral classification is crucial for validating results and improving classification methods.</p>
+        
+        <h3 class="sub-title">Confusion Matrix</h3>
+        <p>A confusion matrix helps evaluate the performance of the classification by comparing predicted mineral types with ground truth data.</p>
+        
+        <div class="code-box">
+<pre>
+# Evaluate classification accuracy
+from sklearn.metrics import classification_report, confusion_matrix
+
+# Generate confusion matrix
+conf_matrix = confusion_matrix(y_test, rf_model.predict(X_test))
+
+# Classification report
+print(classification_report(y_test, rf_model.predict(X_test)))
+
+# Calculate overall accuracy
+accuracy = rf_model.score(X_test, y_test)
+print(f"Overall Accuracy: {accuracy:.2f}")
+</pre>
+        </div>
+    </div>
+</div>
+{% endblock %} 

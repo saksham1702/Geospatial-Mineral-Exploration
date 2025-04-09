@@ -1,0 +1,75 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home - Remote Sensing for Mineral Exploration{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Remote Sensing for Mineral Exploration</h1>
+
+<div class="card">
+    <h2 class="card-title">Project Overview</h2>
+    <div class="card-content">
+        <p>This web application demonstrates the application of hyperspectral remote sensing for mineral exploration in the Cuprite Nevada area. The workflow showcases the process of loading, processing, and analyzing hyperspectral satellite imagery to detect and map the presence of kaolinite, a clay mineral often associated with hydrothermal alteration zones.</p>
+        <p>Each stage of the workflow can be explored in detail through the navigation menu. To run the complete workflow and generate results, use the "Run Simulation" button in the top right corner.</p>
+    </div>
+</div>
+
+<h2 class="card-title">Workflow Stages</h2>
+
+<div class="workflow-steps">
+    <div class="workflow-step">
+        <div class="workflow-step-number">1</div>
+        <div class="workflow-step-title">Dataset</div>
+        <p>Loading hyperspectral imagery from the EnMAP satellite</p>
+        <a href="/dataset" class="btn">Explore</a>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="workflow-step-number">2</div>
+        <div class="workflow-step-title">Preprocessing</div>
+        <p>Clipping to ROI and preprocessing data</p>
+        <a href="/preprocessing" class="btn">Explore</a>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="workflow-step-number">3</div>
+        <div class="workflow-step-title">Spectral Analysis</div>
+        <p>Reference spectrum for target mineral</p>
+        <a href="/spectrum_analysis" class="btn">Explore</a>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="workflow-step-number">4</div>
+        <div class="workflow-step-title">Classification</div>
+        <p>Mineral mapping using spectral matching algorithms</p>
+        <a href="/mineral_mapping" class="btn">Explore</a>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="workflow-step-number">5</div>
+        <div class="workflow-step-title">Visualization</div>
+        <p>Data visualization and interactive exploration</p>
+        <a href="/visualization" class="btn">Explore</a>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="workflow-step-number">6</div>
+        <div class="workflow-step-title">Results</div>
+        <p>Interpretation of kaolinite distribution</p>
+        <a href="/results" class="btn">Explore</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title">About This Demo</h2>
+    <div class="card-content">
+        <p>This demonstration showcases skills relevant to mineral exploration, space science, and geospatial analytics. The techniques used include:</p>
+        <ul>
+            <li>Hyperspectral image processing</li>
+            <li>Spectral analysis and mineral identification</li>
+            <li>Geospatial data processing and visualization</li>
+            <li>Python-based scientific computing for remote sensing</li>
+        </ul>
+        <p>The codebase demonstrates the practical application of these techniques to solve real-world problems in mineral exploration and geological mapping.</p>
+    </div>
+</div>
+{% endblock %}

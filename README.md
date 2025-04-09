@@ -34,5 +34,18 @@ Clone the repository
 
 Run the Example.ipynb Jupyter notebook:
 
+# Geospatial AI for Mineral Exploration
+
+This web application demonstrates the use of hyperspectral remote sensing and AI for mineral exploration, with a focus on kaolinite detection.
+
+## Features
+- Hyperspectral data preprocessing
+- Spectral matching for mineral identification
+- Interactive visualization of spectral signatures
+- Mineral probability mapping
+
+## Deployment
+This application is configured for deployment on Render or other similar platforms.
+
 
 
