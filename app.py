@@ -83,6 +83,10 @@ def get_progress():
     global simulation_progress, simulation_complete
     return jsonify({"progress": simulation_progress, "complete": simulation_complete})
 
+@app.route('/mineral_mapping')
+def mineral_mapping():
+    return render_template('mineral_mapping.html')
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False) 
