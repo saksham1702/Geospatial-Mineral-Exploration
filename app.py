@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 import os
 import time
 import matplotlib.pyplot as plt
@@ -27,9 +27,19 @@ def dataset():
 def preprocessing_page():
     return render_template('preprocessing.html')
 
+
 @app.route('/spectral_analysis')
 def spectral_analysis():
     return render_template('spectral_analysis.html')
+
+@app.route('/mineral_mapping')
+def mineral_mapping():
+    return render_template('mineral_mapping.html')
+
+# Add this route to redirect from spectrum_analysis to spectral_analysis
+@app.route('/spectrum_analysis')
+def spectrum_analysis_redirect():
+    return redirect(url_for('spectral_analysis'))
 
 @app.route('/classification')
 def classification():
@@ -89,4 +99,4 @@ def mineral_mapping():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False) 
+    app.run(host='0.0.0.0', port=port, debug=False)

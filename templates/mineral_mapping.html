@@ -1,0 +1,80 @@
+{% extends 'layout.html' %}
+
+{% block title %}Mineral Mapping - Remote Sensing for Mineral Exploration{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Mineral Mapping</h1>
+    <p class="lead">Classify minerals and create distribution maps</p>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Mineral Classification Process</h5>
+                </div>
+                <div class="card-body">
+                    <p>Mineral mapping combines the results of spectral analysis to create comprehensive maps of mineral distribution.</p>
+                    <p>This process helps identify areas of interest for further exploration.</p>
+                    
+                    <!-- Code example for mineral mapping -->
+                    <div class="mt-4">
+                        <h5>Example Code:</h5>
+                        <pre class="bg-light p-3"><code>
+# Import necessary modules
+from Raster import Raster
+import numpy as np
+
+# Load preprocessed image
+image = Raster('preprocessed_image.tif')
+
+# Create empty mineral map
+mineral_map = np.zeros((image.height, image.width), dtype=np.uint8)
+
+# Apply classification based on spectral analysis results
+for y in range(image.height):
+    for x in range(image.width):
+        spectrum = image.get_spectrum(x, y)
+        mineral_id = classify_mineral(spectrum)
+        mineral_map[y, x] = mineral_id
+
+# Save the mineral map
+Raster.save(mineral_map, 'mineral_classification.tif', 
+            projection=image.projection, 
+            transform=image.transform)
+                        </code></pre>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Classification Methods:</h5>
+                        <ul>
+                            <li>Threshold-based classification using spectral analysis results</li>
+                            <li>Machine learning classification (Random Forest, SVM)</li>
+                            <li>Rule-based mineral assemblage mapping</li>
+                            <li>Integration with geological context</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Mineral Assemblages</h5>
+                </div>
+                <div class="card-body">
+                    <p>Mineral assemblages can indicate specific geological processes:</p>
+                    <ul>
+                        <li><strong>Advanced Argillic</strong> - Kaolinite, alunite, pyrophyllite</li>
+                        <li><strong>Phyllic</strong> - Muscovite/sericite, quartz, pyrite</li>
+                        <li><strong>Propylitic</strong> - Chlorite, epidote, calcite</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

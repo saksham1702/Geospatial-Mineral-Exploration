@@ -3,119 +3,74 @@
 {% block title %}Spectral Analysis - Remote Sensing for Mineral Exploration{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Spectral Analysis</h1>
+<div class="container mt-4">
+    <h1>Spectral Analysis</h1>
+    <p class="lead">Identify minerals based on their spectral signatures</p>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Spectral Analysis Process</h5>
+                </div>
+                <div class="card-body">
+                    <p>Spectral analysis involves comparing the spectral signatures of pixels in the image to known spectral libraries of minerals.</p>
+                    <p>This process allows us to identify minerals based on their unique reflectance patterns across different wavelengths.</p>
+                    
+                    <!-- Code example for spectral analysis -->
+                    <div class="mt-4">
+                        <h5>Example Code:</h5>
+                        <pre class="bg-light p-3"><code>
+# Import necessary modules
+from Spectrum import Spectrum
+from utils import spectralMatch
 
-<div class="card">
-    <h2 class="card-title"><i class="fas fa-database"></i> Spectral Libraries</h2>
-    <div class="card-content">
-        <p>Spectral analysis for mineral identification relies on comparing image spectra with reference spectra from known minerals. This project utilizes the USGS Spectral Library, a comprehensive collection of laboratory-measured mineral spectra.</p>
-        
-        <h3 class="sub-title">USGS Spectral Library</h3>
-        <p>The USGS Spectral Library contains reflectance spectra for over 1,300 minerals, rocks, soils, and man-made materials. For this project, we focus on spectra of minerals commonly found in hydrothermal alteration zones:</p>
-        <ul class="feature-list">
-            <li>Kaolinite</li>
-            <li>Alunite</li>
-            <li>Illite</li>
-            <li>Montmorillonite</li>
-            <li>Muscovite</li>
-            <li>Chlorite</li>
-        </ul>
-        
-        <div class="code-box">
-<pre>
-# Load target mineral spectra from USGS library
-from geospatial_ai.Spectrum import USGSLibrary
+# Load spectral library
+spectral_library = Spectrum.load_library('minerals.csv')
 
-# Initialize the spectral library
-usgs_library = USGSLibrary()
+# Extract pixel spectrum from image
+pixel_spectrum = image.get_spectrum(x, y)
 
-# Load spectra for target minerals
-kaolinite = usgs_library.get_spectrum("Kaolinite")
-alunite = usgs_library.get_spectrum("Alunite")
-muscovite = usgs_library.get_spectrum("Muscovite")
-</pre>
+# Perform spectral matching
+matches = spectralMatch(pixel_spectrum, spectral_library)
+
+# Get top mineral match
+top_match = matches[0]
+print(f"Top mineral match: {top_match['mineral']} with score: {top_match['score']}")
+                        </code></pre>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Key Steps in Spectral Analysis:</h5>
+                        <ul>
+                            <li>Extract spectral signatures from preprocessed hyperspectral data</li>
+                            <li>Compare signatures to spectral libraries using algorithms like Spectral Angle Mapper (SAM)</li>
+                            <li>Generate probability maps for target minerals</li>
+                            <li>Apply thresholds to identify areas with high mineral probability</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div class="image-container">
-            <img src="https://www.usgs.gov/media/images/spectral-characterization-a-sample-images" alt="USGS Spectral Library" class="responsive-image">
-            <p class="image-caption">Example reflectance spectra of common minerals from the USGS Spectral Library showing characteristic absorption features.</p>
+    </div>
+    
+    <!-- Additional content section without images -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Target Minerals</h5>
+                </div>
+                <div class="card-body">
+                    <p>In this demonstration, we focus on identifying the following minerals:</p>
+                    <ul>
+                        <li><strong>Kaolinite</strong> - A clay mineral often associated with hydrothermal alteration</li>
+                        <li><strong>Alunite</strong> - Commonly found in areas with acidic hydrothermal alteration</li>
+                        <li><strong>Muscovite</strong> - A mica mineral that can indicate certain types of alteration</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<div class="card">
-    <h2 class="card-title"><i class="fas fa-wave-square"></i> Spectral Feature Analysis</h2>
-    <div class="card-content">
-        <p>Identifying minerals requires analyzing key spectral features, particularly absorption bands that are characteristic of specific minerals. For kaolinite, the focus is on its diagnostic double absorption feature around 2200 nm.</p>
-        
-        <h3 class="sub-title">Absorption Features</h3>
-        <p>The primary spectral features for identifying kaolinite include:</p>
-        <ul class="feature-list">
-            <li>Double absorption feature at ~2160 and ~2200 nm due to Al-OH bonds</li>
-            <li>Additional absorption at ~1400 nm from OH stretching</li>
-            <li>Absorption feature at ~1900 nm from molecular water</li>
-        </ul>
-        
-        <div class="code-box">
-<pre>
-# Analyze absorption features for kaolinite
-from geospatial_ai.Spectrum import find_absorption_features
-
-# Define wavelength ranges to search for absorption features
-feature_ranges = [(2150, 2220), (1380, 1420), (1880, 1920)]
-
-# Find absorption features in kaolinite spectrum
-kaolinite_features = find_absorption_features(kaolinite.spectrum, 
-                                            kaolinite.wavelengths, 
-                                            feature_ranges)
-
-print(f"Kaolinite absorption centers: {kaolinite_features}")
-</pre>
-        </div>
-    </div>
-</div>
-
-<div class="card">
-    <h2 class="card-title"><i class="fas fa-exchange-alt"></i> Spectral Matching Algorithms</h2>
-    <div class="card-content">
-        <p>Several algorithms are used to compare image spectra with reference library spectra to identify minerals:</p>
-        
-        <h3 class="sub-title">1. Spectral Angle Mapper (SAM)</h3>
-        <p>The Spectral Angle Mapper treats spectra as vectors and calculates the angle between them in n-dimensional space. Smaller angles indicate greater similarity between spectra.</p>
-        <div class="code-box">
-<pre>
-# Apply Spectral Angle Mapper
-from geospatial_ai.utils import spectral_angle_mapper
-
-# Calculate SAM between image spectra and reference kaolinite
-sam_scores = spectral_angle_mapper(raster_cr.values, kaolinite.spectrum)
-
-# Lower angles indicate better matches
-kaolinite_sam_map = sam_scores.reshape(raster_cr.height, raster_cr.width)
-</pre>
-        </div>
-        
-        <h3 class="sub-title">2. Spectral Feature Fitting (SFF)</h3>
-        <p>Spectral Feature Fitting focuses on matching specific absorption features rather than the entire spectrum. It measures the depth and shape of absorption features.</p>
-        <div class="code-box">
-<pre>
-# Apply Spectral Feature Fitting
-from geospatial_ai.utils import spectral_feature_fitting
-
-# Define wavelength ranges for key kaolinite absorption features
-feature_ranges = [(2150, 2220)]
-
-# Perform feature fitting
-sff_scores = spectral_feature_fitting(raster_cr.values, 
-                                     kaolinite.spectrum, 
-                                     raster_cr.wavelengths, 
-                                     kaolinite.wavelengths,
-                                     feature_ranges)
-
-# Higher scores indicate better matches
-kaolinite_sff_map = sff_scores.reshape(raster_cr.height, raster_cr.width)
-</pre>
-        </div>
-    </div>
-</div>
-{% endblock %} 
+{% endblock %}
